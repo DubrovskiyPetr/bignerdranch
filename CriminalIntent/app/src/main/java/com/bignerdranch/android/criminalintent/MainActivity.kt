@@ -16,7 +16,8 @@ class MainActivity : AppCompatActivity(), CrimeListFragment.Callbacks {
 
         if (currentFragment == null) {
             val fragment = CrimeListFragment.newInstance()
-            supportFragmentManager.beginTransaction()
+            supportFragmentManager
+                .beginTransaction()
                 .add(R.id.fragment_container, fragment)
                 .commit()
         }
