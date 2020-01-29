@@ -163,7 +163,7 @@ class CrimeFragment : Fragment(), DatePickerFragment.Callbacks {
 
         val dateString = DateFormat.format(DATE_FORMAT, crime.date)
         val suspect = if (crime.suspect.isBlank()) {
-            getString(R.string.crime_report_no_suspend)
+            getString(R.string.crime_report_no_suspect)
         } else {
             getString(R.string.crime_report_suspect, crime.suspect)
         }
