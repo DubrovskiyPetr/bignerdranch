@@ -25,7 +25,11 @@ class PhotoGalleryFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view = inflater.inflate(R.layout.fragment_photo_gallery, container, false)
         photoRecyclerView = view.findViewById<RecyclerView>(R.id.photo_recycler_view).apply {
-            layoutManager = GridLayoutManager(context, 3)
+            layoutManager = GridLayoutManager(context, 1)
+            viewTreeObserver.addOnGlobalLayoutListener {
+                val spanCount = (width / context.resources.displayMetrics.density / 130).toInt()
+                (layoutManager as GridLayoutManager).spanCount = spanCount
+            }
         }
         return view
     }
@@ -36,7 +40,6 @@ class PhotoGalleryFragment : Fragment() {
             viewLifecycleOwner,
             Observer { galleryItems ->
                 photoRecyclerView.adapter = PhotoAdapter(galleryItems)
-//                Log.d(TAG, "Have gallery items from ViewModel $galleryItems")
             }
         )
     }
