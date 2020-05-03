@@ -8,8 +8,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.bignerdranch.android.photogallery.api.FlickrApi
 import com.bignerdranch.android.photogallery.api.PhotoDeserializer
+import com.bignerdranch.android.photogallery.api.PhotoInterceptor
 import com.bignerdranch.android.photogallery.api.PhotoResponse
 import com.google.gson.GsonBuilder
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Callback
@@ -23,6 +25,10 @@ class FlickrFetch {
     private val flickrApi: FlickrApi
 
     init {
+        val client = OkHttpClient.Builder()
+            .addInterceptor(PhotoInterceptor())
+            .build()
+
         val photoResponseDeserializer = GsonBuilder()
             .registerTypeAdapter(PhotoResponse::class.java, PhotoDeserializer())
             .create()
@@ -30,16 +36,24 @@ class FlickrFetch {
         val retrofit: Retrofit = Retrofit.Builder()
             .baseUrl("https://api.flickr.com/")
             .addConverterFactory(GsonConverterFactory.create(photoResponseDeserializer))
+            .client(client)
             .build()
 
         flickrApi = retrofit.create(FlickrApi::class.java)
     }
 
     fun fetchPhotos(): LiveData<List<GalleryItem>> {
-        val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
-        val photoRequest: Call<PhotoResponse> = flickrApi.fetchPhotos()
+        return fetchPhotosMetadata(flickrApi.fetchPhotos())
+    }
 
-        photoRequest.enqueue(object : Callback<PhotoResponse> {
+    fun searchPhotos(query: String): LiveData<List<GalleryItem>> {
+        return fetchPhotosMetadata(flickrApi.searchPhotos(query))
+    }
+
+    private fun fetchPhotosMetadata(flickrRequest: Call<PhotoResponse>): LiveData<List<GalleryItem>> {
+        val responseLiveData: MutableLiveData<List<GalleryItem>> = MutableLiveData()
+
+        flickrRequest.enqueue(object : Callback<PhotoResponse> {
             override fun onFailure(call: Call<PhotoResponse>, t: Throwable) {
                 Log.e(TAG, "Failed to fetch photos")
             }
