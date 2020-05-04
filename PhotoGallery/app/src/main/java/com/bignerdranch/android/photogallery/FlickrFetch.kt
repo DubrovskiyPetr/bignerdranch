@@ -42,12 +42,20 @@ class FlickrFetch {
         flickrApi = retrofit.create(FlickrApi::class.java)
     }
 
+    fun fetchPhotoRequest(): Call<PhotoResponse> {
+        return flickrApi.fetchPhotos()
+    }
+
     fun fetchPhotos(): LiveData<List<GalleryItem>> {
-        return fetchPhotosMetadata(flickrApi.fetchPhotos())
+        return fetchPhotosMetadata(fetchPhotoRequest())
+    }
+
+    fun searchPhotosRequest(query: String): Call<PhotoResponse> {
+        return flickrApi.searchPhotos(query)
     }
 
     fun searchPhotos(query: String): LiveData<List<GalleryItem>> {
-        return fetchPhotosMetadata(flickrApi.searchPhotos(query))
+        return fetchPhotosMetadata(searchPhotosRequest(query))
     }
 
     private fun fetchPhotosMetadata(flickrRequest: Call<PhotoResponse>): LiveData<List<GalleryItem>> {
